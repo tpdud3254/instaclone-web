@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const SubmitButton = styled.input`
+const Button = styled.button`
     border: none;
     margin-top: 12px;
     border-radius: 5px;
@@ -12,4 +12,4 @@ const SubmitButton = styled.input`
     width: 100%;
 `;
 
-export default SubmitButton;
+export default Button;

@@ -20,6 +20,10 @@ const FacebookLogin = styled.div`
     }
 `;
 
+const dividerStyle = {
+    margin: "20px 0px 30px 0px",
+};
+
 function Login() {
     return (
         <AuthLayout>
@@ -32,7 +36,7 @@ function Login() {
                     <Input type="password" placeholder="Password" />
                     <SubmitButton type="submit" value="Log in" />
                 </form>
-                <Divider />
+                <Divider style={dividerStyle} />
                 <FacebookLogin>
                     <FontAwesomeIcon icon={faFacebookSquare} />
                     <span>Log in with Facebook</span>
