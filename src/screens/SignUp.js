@@ -13,6 +13,7 @@ import BottomBox from "../components/auth/BottomBox";
 import styled from "styled-components";
 import { FatLink } from "../components/common";
 import Button from "../components/auth/Button";
+import PageTitle from "../components/PageTitle";
 
 const HeadContainer = styled.div`
     display: flex;
@@ -53,6 +54,7 @@ const LearnMoreText = styled.span`
 function SingUp() {
     return (
         <AuthLayout>
+            <PageTitle title="Sign up" />
             <FormBox>
                 <HeadContainer>
                     <FontAwesomeIcon icon={faInstagram} size="3x" />
