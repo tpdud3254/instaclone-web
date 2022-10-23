@@ -14,6 +14,8 @@ import BottomBox from "../components/auth/BottomBox";
 import PageTitle from "../components/PageTitle";
 import { useForm } from "react-hook-form";
 import FormError from "../components/auth/FormError";
+import { gql, useMutation } from "@apollo/client";
+import { logUserIn } from "../apollo";
 
 const FacebookLogin = styled.div`
     color: #385285;
@@ -27,18 +29,68 @@ const dividerStyle = {
     margin: "20px 0px 30px 0px",
 };
 
+const LOGIN_MUTATION = gql`
+    mutation login($username: String!, $password: String!) {
+        login(userName: $username, password: $password) {
+            ok
+            token
+            error
+        }
+    }
+`;
+
 function Login() {
-    const { register, watch, handleSubmit, formState } = useForm({
+    const {
+        register,
+        watch,
+        handleSubmit,
+        formState,
+        getValues,
+        setError,
+        clearErrors,
+    } = useForm({
         mode: "onChange",
     });
     //handelSubmit은 두개의 function을 argument로 가진다
     //1. form이 유효한지 확인하는 function(onValid) 호출
     //2. form이 유효하지 않은 지 확인하는 function(onInvalid) 호출
 
-    const onSubmitValid = (data) => {};
+    const onCompleted = (data) => {
+        const {
+            login: { ok, error, token },
+        } = data;
+
+        if (!ok) {
+            return setError("result", {
+                message: error,
+            });
+        }
+
+        if (token) {
+            logUserIn(token);
+        }
+    };
+
+    const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+        onCompleted,
+    });
+
+    const onSubmitValid = (data) => {
+        if (loading) {
+            return;
+        }
+        const { username, password } = getValues();
+
+        login({
+            variables: { username, password },
+        });
+    };
 
     const onSubmiInValid = (data) => {};
 
+    const clearLoginErrors = () => {
+        clearErrors("result");
+    };
     return (
         <AuthLayout>
             <PageTitle title="Login" />
@@ -56,6 +108,7 @@ function Login() {
                                     "Username should be longer than 5 chars.",
                             },
                         })}
+                        onFocus={clearLoginErrors}
                         type="text"
                         placeholder="Username"
                         hasError={Boolean(formState.errors?.username?.message)}
@@ -65,6 +118,7 @@ function Login() {
                         {...register("password", {
                             required: "Password is required",
                         })}
+                        onFocus={clearLoginErrors}
                         type="password"
                         placeholder="Password"
                         hasError={Boolean(formState.errors?.password?.message)}
@@ -72,9 +126,10 @@ function Login() {
                     <FormError message={formState.errors?.password?.message} />
                     <SubmitButton
                         type="submit"
-                        value="Log in"
-                        disabled={!formState.isValid}
+                        value={loading ? "Loading..." : "Log in"}
+                        disabled={!formState.isValid || loading}
                     />
+                    <FormError message={formState.errors?.result?.message} />
                 </form>
                 <Divider style={dividerStyle} />
                 <FacebookLogin>
