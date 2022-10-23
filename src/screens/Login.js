@@ -11,8 +11,9 @@ import Divider from "../components/auth/Divider";
 import Input from "../components/auth/Input";
 import FormBox from "../components/auth/FormBox";
 import BottomBox from "../components/auth/BottomBox";
-import { Helmet } from "react-helmet-async";
 import PageTitle from "../components/PageTitle";
+import { useForm } from "react-hook-form";
+import FormError from "../components/auth/FormError";
 
 const FacebookLogin = styled.div`
     color: #385285;
@@ -27,6 +28,17 @@ const dividerStyle = {
 };
 
 function Login() {
+    const { register, watch, handleSubmit, formState } = useForm({
+        mode: "onChange",
+    });
+    //handelSubmit은 두개의 function을 argument로 가진다
+    //1. form이 유효한지 확인하는 function(onValid) 호출
+    //2. form이 유효하지 않은 지 확인하는 function(onInvalid) 호출
+
+    const onSubmitValid = (data) => {};
+
+    const onSubmiInValid = (data) => {};
+
     return (
         <AuthLayout>
             <PageTitle title="Login" />
@@ -34,10 +46,35 @@ function Login() {
                 <div>
                     <FontAwesomeIcon icon={faInstagram} size="3x" />
                 </div>
-                <form>
-                    <Input type="text" placeholder="Username" />
-                    <Input type="password" placeholder="Password" />
-                    <SubmitButton type="submit" value="Log in" />
+                <form onSubmit={handleSubmit(onSubmitValid, onSubmiInValid)}>
+                    <Input
+                        {...register("username", {
+                            required: "Username is required",
+                            minLength: {
+                                value: 5,
+                                message:
+                                    "Username should be longer than 5 chars.",
+                            },
+                        })}
+                        type="text"
+                        placeholder="Username"
+                        hasError={Boolean(formState.errors?.username?.message)}
+                    />
+                    <FormError message={formState.errors?.username?.message} />
+                    <Input
+                        {...register("password", {
+                            required: "Password is required",
+                        })}
+                        type="password"
+                        placeholder="Password"
+                        hasError={Boolean(formState.errors?.password?.message)}
+                    />
+                    <FormError message={formState.errors?.password?.message} />
+                    <SubmitButton
+                        type="submit"
+                        value="Log in"
+                        disabled={!formState.isValid}
+                    />
                 </form>
                 <Divider style={dividerStyle} />
                 <FacebookLogin>
