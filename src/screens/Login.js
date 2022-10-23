@@ -30,8 +30,8 @@ const dividerStyle = {
 };
 
 const LOGIN_MUTATION = gql`
-    mutation login($username: String!, $password: String!) {
-        login(userName: $username, password: $password) {
+    mutation login($userName: String!, $password: String!) {
+        login(userName: $userName, password: $password) {
             ok
             token
             error
@@ -79,10 +79,10 @@ function Login() {
         if (loading) {
             return;
         }
-        const { username, password } = getValues();
+        const { userName, password } = getValues();
 
         login({
-            variables: { username, password },
+            variables: { userName, password },
         });
     };
 
@@ -100,7 +100,7 @@ function Login() {
                 </div>
                 <form onSubmit={handleSubmit(onSubmitValid, onSubmiInValid)}>
                     <Input
-                        {...register("username", {
+                        {...register("userName", {
                             required: "Username is required",
                             minLength: {
                                 value: 5,
