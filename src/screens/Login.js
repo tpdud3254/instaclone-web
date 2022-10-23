@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import FormError from "../components/auth/FormError";
 import { gql, useMutation } from "@apollo/client";
 import { logUserIn } from "../apollo";
+import { useLocation } from "react-router-dom";
 
 const FacebookLogin = styled.div`
     color: #385285;
@@ -29,6 +30,10 @@ const dividerStyle = {
     margin: "20px 0px 30px 0px",
 };
 
+const Notification = styled.div`
+    color: #2ecc71;
+`;
+
 const LOGIN_MUTATION = gql`
     mutation login($userName: String!, $password: String!) {
         login(userName: $userName, password: $password) {
@@ -40,6 +45,7 @@ const LOGIN_MUTATION = gql`
 `;
 
 function Login() {
+    const location = useLocation();
     const {
         register,
         watch,
@@ -50,6 +56,10 @@ function Login() {
         clearErrors,
     } = useForm({
         mode: "onChange",
+        defaultValues: {
+            userName: location?.state?.userName || "",
+            password: location?.state?.password || "",
+        },
     });
     //handelSubmit은 두개의 function을 argument로 가진다
     //1. form이 유효한지 확인하는 function(onValid) 호출
@@ -98,6 +108,9 @@ function Login() {
                 <div>
                     <FontAwesomeIcon icon={faInstagram} size="3x" />
                 </div>
+                {location?.state?.message ? (
+                    <Notification>location?.state?.message </Notification>
+                ) : null}
                 <form onSubmit={handleSubmit(onSubmitValid, onSubmiInValid)}>
                     <Input
                         {...register("userName", {

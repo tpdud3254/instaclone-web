@@ -78,6 +78,7 @@ function SingUp() {
     const navigate = useNavigate();
 
     const onCompleted = (data) => {
+        const { userName, password } = getValues();
         const {
             createAccount: { ok, error },
         } = data;
@@ -86,12 +87,20 @@ function SingUp() {
             return;
         }
 
-        navigate(routes.home);
+        navigate(routes.home, {
+            state: {
+                message: "Account created. Please log in.",
+                userName,
+                password,
+            },
+        });
     };
     const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
         onCompleted,
     });
-    const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
+    const { register, handleSubmit, formState, getValues } = useForm({
+        mode: "onChange",
+    });
 
     const onSubmiValid = (data) => {
         if (loading) {
