@@ -13,7 +13,7 @@ import { FatText } from "../common";
 import { gql, useMutation } from "@apollo/client";
 
 const TOGGLE_LIEK_MUTATION = gql`
-    mutation ($id: Int!) {
+    mutation toggleLike($id: Int!) {
         toggleLike(id: $id) {
             ok
             error
@@ -72,12 +72,65 @@ const Likes = styled(FatText)`
 `;
 
 function Photo({ id, user, file, isLiked, likes }) {
+    const updateToggleLike = (cache, result) => {
+        const {
+            data: {
+                toggleLike: { ok },
+            },
+        } = result;
+
+        if (ok) {
+            const fragmentId = `Photo:${id}`;
+            const fragment = gql`
+                fragment frg on Photo {
+                    isLiked
+                    likes
+                }
+            `;
+
+            const result = cache.readFragment({
+                id: fragmentId,
+                fragment,
+            });
+
+            if ("isLiked" in result && "likes" in result) {
+                const { isLiked: cacheIsLiked, likes: cacheLikes } = result;
+
+                cache.writeFragment({
+                    id: fragmentId,
+                    fragment,
+                    data: {
+                        isLiked: !cacheIsLiked,
+                        likes: cacheIsLiked ? cacheLikes - 1 : cacheLikes + 1,
+                    },
+                });
+            }
+        }
+        /*
+        props를 사용할때
+        if (ok) {
+            cache.writeFragment({
+                //writeFragment : cache에서 내가 원하는 특정 object의 일부분을 수정하는 작업
+                id: `Photo:${id}`,
+                fragment: gql`
+                    fragment bsname on Photo {
+                        isLiked
+                    }
+                `,
+                data: {
+                    isLiked: !isLiked,
+                },
+            });
+        }
+        */
+    };
     const [toggleLikeMutation, { loading, data }] = useMutation(
         TOGGLE_LIEK_MUTATION,
         {
             variables: {
                 id,
             },
+            update: updateToggleLike,
         }
     );
 
