@@ -6,6 +6,8 @@ export const lightTheme = {
     borderColor: "rgb(219, 219, 219)",
     bgColor: "#FAFAFA",
     fontColor: "rgb(38,38,38)",
+    feedBgColor: "white",
+    feedFontColor: "Balck",
 };
 
 export const darkTheme = {
@@ -13,6 +15,8 @@ export const darkTheme = {
     borderColor: "rgb(219, 219, 219)",
     bgColor: "rgb(38,38,38)",
     fontColor: "#FAFAFA",
+    feedBgColor: "black",
+    feedFontColor: "white",
 };
 
 //global style - body 전체에 적용
