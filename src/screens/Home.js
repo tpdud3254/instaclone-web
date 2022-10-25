@@ -103,7 +103,7 @@ function Home() {
                                             color: photo.isLiked
                                                 ? "tomato"
                                                 : "inherit",
-                                        }}
+                                        }} //inherit: 부모 속성 그대로 받아옴
                                         size={"2x"}
                                         icon={
                                             photo.isLiked ? SolidHeart : faHeart
