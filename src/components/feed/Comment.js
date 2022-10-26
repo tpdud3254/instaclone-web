@@ -5,6 +5,15 @@ import { FatText } from "../common";
 import sanitizeHtml from "sanitize-html";
 import { Link } from "react-router-dom";
 import routes from "../../routes";
+import { gql, useMutation } from "@apollo/client";
+
+const DELETE_COMMENTS_MUTATION = gql`
+    mutation deleteComments($id: Int!) {
+        deleteComments(id: $id) {
+            ok
+        }
+    }
+`;
 
 const CommentContainer = styled.div`
     margin-bottom: 7px;
@@ -22,7 +31,7 @@ const CommentCaption = styled.span`
     }
 `;
 
-function Comment({ author, payload }) {
+function Comment({ id, photoId, isMine, author, payload }) {
     /* 
     이렇게 하면 태그를 리액트 컴포넌트로 감쌀 수 없음. 하지만 유용하게 쓰일듯..
     const cleanedPayload = sanitizeHtml(
@@ -38,6 +47,36 @@ function Comment({ author, payload }) {
             />
         </CommentContainer>
     ); */
+
+    const updateDeleteComment = (cache, result) => {
+        const {
+            data: {
+                deleteComments: { ok },
+            },
+        } = result;
+
+        if (ok) {
+            cache.evict({ id: `Comment:${id}` });
+            cache.modify({
+                id: `Photo:${photoId}`,
+                fields: {
+                    commentNumber: (prev) => prev - 1,
+                },
+            });
+            cache.gc(); //메모장 참고 TODO:정확한 기능 파악
+        }
+    };
+
+    const [deleteCommentsMutation] = useMutation(DELETE_COMMENTS_MUTATION, {
+        variables: {
+            id,
+        },
+        update: updateDeleteComment,
+    });
+    const onDeleteClick = () => {
+        deleteCommentsMutation();
+    };
+
     return (
         <CommentContainer>
             <FatText>{author}</FatText>
@@ -54,11 +93,15 @@ function Comment({ author, payload }) {
                     )
                 )}
             </CommentCaption>
+            {isMine ? <button onClick={onDeleteClick}>x</button> : null}
         </CommentContainer>
     ); //TODOS: @사용자이름 기능도 추가하기
 }
 
 Comment.propTypes = {
+    id: PropTypes.number,
+    photoId: PropTypes.number,
+    isMine: PropTypes.bool,
     author: PropTypes.string.isRequired,
     payload: PropTypes.string,
 };

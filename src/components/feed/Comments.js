@@ -125,6 +125,9 @@ function Comments({ photoId, author, caption, commentNumber, comments }) {
             {comments?.map((comment, index) => (
                 <Comment
                     key={index}
+                    id={comment.id}
+                    photoId={photoId}
+                    isMine={comment.isMine}
                     author={comment.user.userName}
                     payload={comment.payload}
                 />
