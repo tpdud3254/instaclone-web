@@ -55,7 +55,7 @@ function Login() {
         setError,
         clearErrors,
     } = useForm({
-        mode: "onChange",
+        mode: "onChange", //TODOS: 이거 무슨 역할인지 까먹음
         defaultValues: {
             userName: location?.state?.userName || "",
             password: location?.state?.password || "",
@@ -124,9 +124,9 @@ function Login() {
                         onFocus={clearLoginErrors}
                         type="text"
                         placeholder="Username"
-                        hasError={Boolean(formState.errors?.username?.message)}
+                        hasError={Boolean(formState.errors?.userName?.message)}
                     />
-                    <FormError message={formState.errors?.username?.message} />
+                    <FormError message={formState.errors?.userName?.message} />
                     <Input
                         {...register("password", {
                             required: "Password is required",
