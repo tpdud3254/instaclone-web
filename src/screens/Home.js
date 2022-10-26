@@ -44,8 +44,8 @@ function Home() {
     return (
         <HomeContainer>
             <PageTitle title="home" />
-            {data?.seeFeed?.map((photo) => (
-                <Photo key={photo.id} {...photo} />
+            {data?.seeFeed?.map((photo, index) => (
+                <Photo key={index} {...photo} />
             ))}
         </HomeContainer>
     );

@@ -23,9 +23,9 @@ function Comments({ author, caption, commentNumber, comments }) {
                     ? "1 comment"
                     : `${commentNumber} comments`}
             </CommentCount>
-            {comments?.map((comment) => (
+            {comments?.map((comment, index) => (
                 <Comment
-                    key={comment.id}
+                    key={index}
                     author={comment.user.userName}
                     payload={comment.payload}
                 />
