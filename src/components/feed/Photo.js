@@ -182,10 +182,10 @@ function Photo({
     return (
         <PhotoContainer key={id}>
             <PhotoHeader>
-                <Link to={`users/${user.userName}`}>
+                <Link to={`/users/${user.userName}`}>
                     <Avatar lg url={user.avatar} />
                 </Link>
-                <Link to={`users/${user.userName}`}>
+                <Link to={`/users/${user.userName}`}>
                     <Username>{user.userName}</Username>
                 </Link>
             </PhotoHeader>

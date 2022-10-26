@@ -42,7 +42,7 @@ function App() {
                                 ></Route>
                             ) : null}
                             <Route
-                                path={`users/:userName`}
+                                path={`/users/:userName`}
                                 element={
                                     <Layout>
                                         <Profile />

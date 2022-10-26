@@ -79,7 +79,7 @@ function Comment({ id, photoId, isMine, author, payload }) {
 
     return (
         <CommentContainer>
-            <Link to={`users/${author}`}>
+            <Link to={`/users/${author}`}>
                 <FatText>{author}</FatText>
             </Link>
             <CommentCaption>
