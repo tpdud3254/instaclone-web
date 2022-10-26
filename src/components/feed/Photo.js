@@ -83,13 +83,15 @@ function Photo({
     comments,
     commentNumber,
 }) {
-    const updateToggleLike = (cache, result) => {
+    //fragment를 사용하는 방법
+    /* const updateToggleLike = (cache, result) => {
         const {
             data: {
                 toggleLike: { ok },
             },
         } = result;
 
+        //cache에 있는 데이터를 사용할때
         if (ok) {
             const fragmentId = `Photo:${id}`;
             const fragment = gql`
@@ -117,8 +119,8 @@ function Photo({
                 });
             }
         }
-        /*
-        props를 사용할때
+        
+        //props를 사용하는 방법
         if (ok) {
             cache.writeFragment({
                 //writeFragment : cache에서 내가 원하는 특정 object의 일부분을 수정하는 작업
@@ -133,8 +135,39 @@ function Photo({
                 },
             });
         }
-        */
+        
+    };  */
+
+    //cache.modify를 사용하는 방법 (apollo client 3에서 제공)
+    const updateToggleLike = (cache, result) => {
+        const {
+            data: {
+                toggleLike: { ok },
+            },
+        } = result;
+
+        //cache에 있는 데이터를 사용할때
+        if (ok) {
+            const photoId = `Photo:${id}`;
+            cache.modify({
+                id: photoId,
+                fields: {
+                    isLiked(prev) {
+                        return !prev;
+                    },
+                    likes(prev, { readField }) {
+                        if (readField("isLiked")) {
+                            return prev - 1;
+                        }
+                        return prev + 1;
+                    },
+                    //React 의 porps가 업데이트가 안되는 경우가 있습니다.
+                    //cache.modify 의 field 조건문에 readField 를 사용하여 캐시에서 데이터를 읽어주세요.
+                },
+            });
+        }
     };
+
     const [toggleLikeMutation, { loading, data }] = useMutation(
         TOGGLE_LIEK_MUTATION,
         {
