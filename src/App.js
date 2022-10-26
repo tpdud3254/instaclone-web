@@ -8,6 +8,7 @@ import routes from "./routes";
 import Home from "./screens/Home";
 import Login from "./screens/Login";
 import NotFound from "./screens/NotFound";
+import Profile from "./screens/Profile";
 import SignUp from "./screens/SignUp";
 import { darkTheme, GlobalStyles, lightTheme } from "./styles";
 
@@ -40,6 +41,10 @@ function App() {
                                     element={<SignUp />}
                                 ></Route>
                             ) : null}
+                            <Route
+                                path={`users/:userName`}
+                                element={<Profile />}
+                            />
                             <Route path="*" element={<NotFound />}></Route>
                             {/* not found 화면 원할 시 (항상 맨 마지막에 둬야함) */}
                             {/* <Route path="*" element={<Navigate to="/" />} /> redirect원할 시 */}
