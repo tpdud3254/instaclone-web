@@ -43,7 +43,11 @@ function App() {
                             ) : null}
                             <Route
                                 path={`users/:userName`}
-                                element={<Profile />}
+                                element={
+                                    <Layout>
+                                        <Profile />
+                                    </Layout>
+                                }
                             />
                             <Route path="*" element={<NotFound />}></Route>
                             {/* not found 화면 원할 시 (항상 맨 마지막에 둬야함) */}
