@@ -1,11 +1,13 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { faHeart, faComment } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import Button from "../components/auth/Button";
 import { FatText } from "../components/common";
 import PageTitle from "../components/PageTitle";
 import { PHOTO_FRAGMENT } from "../fragments";
+import useUser from "../hooks/useUser";
 
 //쿼리에 Id를 추가하지 않아서 캐시에 추가되지 않는 현상이 발생
 //apoll.js InMemoryCache에 keyFields를 추가하면 고유 식별자를 바꿀수있음
@@ -29,6 +31,22 @@ const SEE_PROFILE_QUERY = gql`
     ${PHOTO_FRAGMENT}
 `;
 
+const FOLLOW_USER_MUTATION = gql`
+    mutation followUser($userName: String!) {
+        followUser(userName: $userName) {
+            ok
+        }
+    }
+`;
+
+const UNFOLLOW_USER_MUTATION = gql`
+    mutation unfollowUser($userName: String!) {
+        unfollowUser(userName: $userName) {
+            ok
+        }
+    }
+`;
+
 const Header = styled.div`
     display: flex;
 `;
@@ -38,6 +56,8 @@ const Column = styled.div``;
 const Row = styled.div`
     margin-bottom: 20px;
     font-size: 16px;
+    display: flex;
+    align-items: center;
 `;
 
 const Avatar = styled.img`
@@ -103,22 +123,128 @@ const Icon = styled.span`
     }
 `;
 
+const ProfileBtn = styled(Button).attrs({
+    as: "span",
+})`
+    margin-left: 10px;
+    margin-top: 0px;
+    cursor: pointer;
+`;
+
 function Profile() {
     const { userName } = useParams();
-    const { data } = useQuery(SEE_PROFILE_QUERY, {
+    const { data: userData } = useUser();
+    const client = useApolloClient();
+    const { data, loading } = useQuery(SEE_PROFILE_QUERY, {
         variables: {
             userName,
         },
     });
 
+    //update 반환값인 cache를 사용
+    const unfollowUserUpdate = (cache, result) => {
+        const {
+            data: {
+                unfollowUser: { ok },
+            },
+        } = result;
+
+        if (!ok) {
+            return;
+        }
+
+        cache.modify({
+            id: `User:${userName}`,
+            fields: {
+                isFollowing: () => false,
+                totalFollowers: (prev) => prev - 1,
+            },
+        });
+
+        const { me } = userData;
+
+        cache.modify({
+            id: `User:${me.userName}`,
+            fields: {
+                totalFollowing: (prev) => prev - 1,
+            },
+        });
+    };
+    const [unfollowUserMutation] = useMutation(UNFOLLOW_USER_MUTATION, {
+        variables: {
+            userName,
+        },
+        update: unfollowUserUpdate,
+    });
+
+    //onCompleted 반환값에는 cache가 없으므로 apollo client를 사용해 cache사용
+    const followUserCompleted = (data) => {
+        const {
+            followUser: { ok },
+        } = data;
+
+        if (!ok) {
+            return;
+        }
+
+        const { cache } = client;
+
+        cache.modify({
+            id: `User:${userName}`,
+            fields: {
+                isFollowing: () => true,
+                totalFollowers: (prev) => prev + 1,
+            },
+        });
+
+        const { me } = userData;
+
+        cache.modify({
+            id: `User:${me.userName}`,
+            fields: {
+                totalFollowing: (prev) => prev + 1,
+            },
+        });
+    };
+
+    const [followUserMutation] = useMutation(FOLLOW_USER_MUTATION, {
+        variables: {
+            userName,
+        },
+        onCompleted: followUserCompleted,
+    });
+    //update와 onCompleted는 둘다 동작이 끝난 후 실행이 되는데 리턴값이 다름
+
+    const getButton = (seeProfile) => {
+        const { isMe, isFollowing } = seeProfile;
+
+        if (isMe) {
+            return <ProfileBtn>Edit Profile</ProfileBtn>;
+        }
+
+        if (isFollowing) {
+            return (
+                <ProfileBtn onClick={unfollowUserMutation}>Unfollow</ProfileBtn>
+            );
+        } else {
+            return <ProfileBtn onClick={followUserMutation}>Follow</ProfileBtn>;
+        }
+    };
     return (
         <div>
-            <PageTitle title="profile" />
+            <PageTitle
+                title={
+                    loading
+                        ? "Loading..."
+                        : `${data?.seeProfile?.userName}'s Profile`
+                }
+            />
             <Header>
                 <Avatar src={data?.seeProfile?.avatar} />
                 <Column>
                     <Row>
                         <Username>{data?.seeProfile?.userName}</Username>
+                        {data?.seeProfile ? getButton(data.seeProfile) : null}
                     </Row>
                     <Row>
                         <Item>
