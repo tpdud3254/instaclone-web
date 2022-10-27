@@ -123,6 +123,15 @@ const Icon = styled.span`
     }
 `;
 
+const NotFoudUser = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 100px;
+`;
+
 const ProfileBtn = styled(Button).attrs({
     as: "span",
 })`
@@ -236,51 +245,68 @@ function Profile() {
                 title={
                     loading
                         ? "Loading..."
-                        : `${data?.seeProfile?.userName}'s Profile`
+                        : data?.seeProfile
+                        ? `${data?.seeProfile?.userName}'s Profile`
+                        : "Not found user :("
                 }
             />
-            <Header>
-                <Avatar src={data?.seeProfile?.avatar} />
-                <Column>
-                    <Row>
-                        <Username>{data?.seeProfile?.userName}</Username>
-                        {data?.seeProfile ? getButton(data.seeProfile) : null}
-                    </Row>
-                    <Row>
-                        <Item>
-                            <Value>{data?.seeProfile?.totalFollowers}</Value>
-                            followers
-                        </Item>
-                        <Item>
-                            <Value>{data?.seeProfile?.totalFollowing}</Value>
-                            following
-                        </Item>
-                    </Row>
-                    <Row>
-                        <Name>
-                            {data?.seeProfile?.firstName}{" "}
-                            {data?.seeProfile?.lastName}
-                        </Name>
-                    </Row>
-                    <Row>{data?.seeProfile?.bio}</Row>
-                </Column>
-            </Header>
-            <Grid>
-                {data?.seeProfile?.photos.map((photo, index) => (
-                    <Photo key={index} bg={photo.file}>
-                        <Icons>
-                            <Icon>
-                                <FontAwesomeIcon icon={faHeart} />
-                                {photo.likes}
-                            </Icon>
-                            <Icon>
-                                <FontAwesomeIcon icon={faComment} />
-                                {photo.commentNumber}
-                            </Icon>
-                        </Icons>
-                    </Photo>
-                ))}
-            </Grid>
+
+            {data?.seeProfile ? (
+                <>
+                    <Header>
+                        <Avatar src={data?.seeProfile?.avatar} />
+                        <Column>
+                            <Row>
+                                <Username>
+                                    {data?.seeProfile?.userName}
+                                </Username>
+                                {data?.seeProfile
+                                    ? getButton(data.seeProfile)
+                                    : null}
+                            </Row>
+                            <Row>
+                                <Item>
+                                    <Value>
+                                        {data?.seeProfile?.totalFollowers}
+                                    </Value>
+                                    followers
+                                </Item>
+                                <Item>
+                                    <Value>
+                                        {data?.seeProfile?.totalFollowing}
+                                    </Value>
+                                    following
+                                </Item>
+                            </Row>
+                            <Row>
+                                <Name>
+                                    {data?.seeProfile?.firstName}{" "}
+                                    {data?.seeProfile?.lastName}
+                                </Name>
+                            </Row>
+                            <Row>{data?.seeProfile?.bio}</Row>
+                        </Column>
+                    </Header>
+                    <Grid>
+                        {data?.seeProfile?.photos.map((photo, index) => (
+                            <Photo key={index} bg={photo.file}>
+                                <Icons>
+                                    <Icon>
+                                        <FontAwesomeIcon icon={faHeart} />
+                                        {photo.likes}
+                                    </Icon>
+                                    <Icon>
+                                        <FontAwesomeIcon icon={faComment} />
+                                        {photo.commentNumber}
+                                    </Icon>
+                                </Icons>
+                            </Photo>
+                        ))}
+                    </Grid>
+                </>
+            ) : (
+                <NotFoudUser>⚠️ NOT FOUND USER ⚠️</NotFoudUser>
+            )}
         </div>
     );
 }

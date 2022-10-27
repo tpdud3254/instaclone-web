@@ -5,7 +5,7 @@ import { FatText } from "../common";
 import sanitizeHtml from "sanitize-html";
 import { Link } from "react-router-dom";
 import routes from "../../routes";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
 const DELETE_COMMENTS_MUTATION = gql`
     mutation deleteComments($id: Int!) {
@@ -77,23 +77,34 @@ function Comment({ id, photoId, isMine, author, payload }) {
         deleteCommentsMutation();
     };
 
+    const commentExtraction = (word, index) => {
+        if (/#[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/.test(word)) {
+            return (
+                <React.Fragment key={index}>
+                    <Link to={`${routes.hasgtags}/${word}`}>{word}</Link>{" "}
+                </React.Fragment>
+            );
+        } else if (/@[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/.test(word)) {
+            const userName = word.substring(1, word.length);
+
+            return (
+                <React.Fragment key={index}>
+                    <Link to={`users/${userName}`}>{word}</Link>{" "}
+                </React.Fragment>
+            );
+        } else {
+            return <React.Fragment key={index}> {word} </React.Fragment>;
+        }
+    };
     return (
         <CommentContainer>
             <Link to={`/users/${author}`}>
                 <FatText>{author}</FatText>
             </Link>
             <CommentCaption>
-                {payload?.split(" ").map((word, index) =>
-                    /#[ㄱ-ㅎ|ㅏ-ㅣ|가-힣|\w]+/.test(word) ? (
-                        <React.Fragment key={index}>
-                            <Link to={`${routes.hasgtags}/${word}`}>
-                                {word}
-                            </Link>{" "}
-                        </React.Fragment>
-                    ) : (
-                        <React.Fragment key={index}> {word} </React.Fragment>
-                    )
-                )}
+                {payload
+                    ?.split(" ")
+                    .map((word, index) => commentExtraction(word, index))}
             </CommentCaption>
             {isMine ? <button onClick={onDeleteClick}>x</button> : null}
         </CommentContainer>
