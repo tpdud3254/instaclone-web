@@ -108,7 +108,7 @@ function Comment({ id, photoId, isMine, author, payload }) {
             </CommentCaption>
             {isMine ? <button onClick={onDeleteClick}>x</button> : null}
         </CommentContainer>
-    ); //TODOS: @사용자이름 기능도 추가하기
+    );
 }
 
 Comment.propTypes = {

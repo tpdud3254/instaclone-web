@@ -5,8 +5,8 @@ import PageTitle from "../components/PageTitle";
 import { COMMENT_FRAGMENT, PHOTO_FRAGMENT } from "../fragments";
 
 const SEE_FEED_QUERY = gql`
-    query seeFeed {
-        seeFeed {
+    query seeFeed($offset: Int!) {
+        seeFeed(offset: $offset) {
             ...PhotoFragment
             user {
                 userName
@@ -31,8 +31,12 @@ const HomeContainer = styled.div`
 `;
 
 function Home() {
-    const { data } = useQuery(SEE_FEED_QUERY);
-
+    const { data } = useQuery(SEE_FEED_QUERY, {
+        variables: {
+            offset: 2,
+        },
+    });
+    //TODOS: 무한 스크롤 구현
     return (
         <HomeContainer>
             <PageTitle title="home" />
